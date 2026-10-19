@@ -14,12 +14,14 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.Settings;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.animation.OvershootInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -126,7 +128,48 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_app, parent, false);
+        fitTile(v, parent);
         return new Holder(v, listener);
+    }
+
+    /**
+     * The tile is 180dp wide in the layout. When the screen is too narrow for that (a high display
+     * density leaves fewer dp), shrink the tile and its contents so the columns do not overlap.
+     */
+    private void fitTile(View v, ViewGroup parent) {
+        float density = ctx.getResources().getDisplayMetrics().density;
+        int usable = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
+        if (usable <= 0 || dockSize <= 0) return;
+        float cell = usable / (float) dockSize;
+        float full = 180f * density;
+        float width = Math.min(full, cell * 0.80f);
+        float f = width / full;
+        if (f >= 1f) return;
+
+        // Keep the row height as designed, so the dock position on screen does not change.
+        v.setMinimumHeight(Math.round(146f * density));
+
+        View card = v.findViewById(R.id.card);
+        ViewGroup.LayoutParams cp = card.getLayoutParams();
+        cp.width = Math.round(width);
+        cp.height = Math.round(101f * density * f);
+        card.setLayoutParams(cp);
+
+        View name = v.findViewById(R.id.name);
+        FrameLayout.LayoutParams np = (FrameLayout.LayoutParams) name.getLayoutParams();
+        np.width = Math.round(width);
+        np.height = Math.round(22f * density * f);
+        np.topMargin = Math.round(108f * density * f);
+        name.setLayoutParams(np);
+        ((TextView) name).setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f * f);
+
+        View icon = v.findViewById(R.id.icon);
+        ViewGroup.LayoutParams ip = icon.getLayoutParams();
+        ip.width = Math.round(48f * density * f);
+        ip.height = Math.round(48f * density * f);
+        icon.setLayoutParams(ip);
+
+        ((TextView) v.findViewById(R.id.label)).setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * f);
     }
 
     @Override
