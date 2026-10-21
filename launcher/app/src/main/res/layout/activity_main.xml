@@ -12,13 +12,14 @@
         android:layout_height="match_parent"
         android:alpha="0" />
 
-    <!-- Top shelf: the focused dock app's name, positioned above the dock in code. -->
+    <!-- Top shelf: the focused dock app's name (hidden). -->
     <TextView
         android:id="@+id/heroName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="68dp"
         android:alpha="0"
+        android:visibility="gone"
         android:textColor="#FFFFFFFF"
         android:textSize="48sp"
         android:fontFamily="@font/outfit"
@@ -46,6 +47,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@+id/topButtons"
                 android:layout_marginEnd="16dp"
+                android:visibility="invisible"
                 android:orientation="vertical">
 
                 <TextView
@@ -182,12 +184,14 @@
             </LinearLayout>
         </RelativeLayout>
 
-        <!-- The wrapper clips at the grid's edge; the grid itself must not clip so scaled tiles can overflow their cells. -->
+        <!-- The wrapper clips at the grid's edge; the grid itself must not clip so scaled tiles can overflow their cells.
+             The negative bottom margin pushes the dock to the bottom of the screen and hides the second row. -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="-32dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/grid"
@@ -203,7 +207,7 @@
         </FrameLayout>
     </LinearLayout>
 
-    <!-- The single floating glass highlight that springs between tiles. -->
+    <!-- The single floating highlight that springs between tiles. -->
     <com.gathin.tvhome.GlassView
         android:id="@+id/glass"
         android:layout_width="10dp"
